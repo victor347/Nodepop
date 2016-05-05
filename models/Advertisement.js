@@ -31,17 +31,60 @@ var advertisementSchema = mongoose.Schema({
     }
 });
 
-advertisementSchema.statics.list = function(filter, sort) {
+advertisementSchema.statics.list = function(filter) {
     return new Promise((resolve, reject)=> {
-        var query = Advertisement.find(filter);
-        query.sort(sort);
+        Advertisement.find(filter).
+        exec((err, advertisements)=>{
+            if (err) {                
+                return reject(err);
+            }            
+            return resolve(advertisements);
+        });
+    });
+};
 
+advertisementSchema.statics.search = function(name, sale, tags, eq, lt, gt) {
+    console.log("search");
+    return new Promise((resolve, reject)=> {
+
+        console.log(name);
+        if(typeof name === "undefined"){
+            console.log("find");
+            var query = Advertisement.find();
+        }
+        else{
+            console.log("findOne");
+            var query = Advertisement.findOne({name: new RegExp('^'+name, "i")});
+        }
+        if(typeof sale !== "undefined"){
+            console.log("sale");
+            query.where("sale").equals(sale);
+        }
+        if(typeof tags !== "undefined") {
+            console.log("tags");
+            query.where('tags').in(tags);
+        }
+        if(typeof eq !== "undefined") {
+            console.log("eq");
+            query.where('price').equals(eq);
+        }
+        if(typeof lt !== "undefined" && typeof gt !== "undefined") {
+            console.log("bt");
+            query.where('price').gt(lt).lt(gt);
+        }
+        if(typeof lt !== "undefined" && typeof gt === "undefined") {
+            console.log("lt");
+            query.where('price').lt(lt);
+        }
+        if(typeof lt === "undefined" && typeof gt !== "undefined") {
+            console.log("gt");
+            query.where('price').gt(gt);
+        }
+       
         query.exec((err, advertisements)=>{
             if (err) {
-                console.log(err);
                 return reject(err);
             }
-            console.log(advertisements);
             return resolve(advertisements);
         });
     });

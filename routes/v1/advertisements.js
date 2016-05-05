@@ -34,38 +34,58 @@ router.get('/', function(req, res, next) {
 
 });
 */
-router.get('/', function(req, res) {
-    if (typeof req.query.name !== 'undefined') {
-        var filtro = {};
-        filtro.name = req.query.name;
-    }
-    console.log(filtro);
 
-    Advertisement.list(filtro).then(function(advertisements) {
-        console.log("Promesa resuelta",advertisements);
+router.get('/search', function(req, res) {
+
+    var name = req.query.name;
+    var sale = req.query.sale;
+    var tag = req.query.tag;
+    var tags = new Array();
+    var price = req.query.price;
+    var lt;
+    var gt;
+    var eq;
+
+    if(typeof tag === "string"){
+        tags[0]=tag;
+    }else{
+        tags=tag;
+    }
+
+    var posicion = price.lastIndexOf('-');
+    if(posicion===0){
+        lt = parseInt(price.substring(1));
+    }else if(posicion > 0 && posicion < price.length-1){
+        var bt = price.split("-");
+        lt=bt[0];
+        gt=bt[1];
+    }else if(posicion > 0){
+        gt = parseInt(price.substring(0, price.length-1));
+    }else if(posicion < 0)
+    {
+        eq = parseInt(price);
+    }
+
+    Advertisement.search(name, sale, tags, eq, lt, gt).then(function(advertisements) {
         res.json({success: true, advertisements: advertisements});
     }).catch(function(err) {
         res.json({success: false, error: err});
     });
 });
 
-router.post('/', function(req, res, next) {
-    var agente = new Agente(req.body);
-
-    var errors = agente.validateSync();
-    if (errors) {
-        console.log('errors', errors);
-        next(new Error('Hubo errores de validacion'));
-        return;
+router.get('/(:advertisement)?', function(req, res) {
+    console.log("vieja");
+    if (typeof req.params.advertisement !== 'undefined') {
+        var filtro = {};
+        filtro.name = req.params.advertisement;
     }
-
-    agente.save(function(err, saved) {
-        if (err) {
-            next(err);
-            return;
-        }
-        res.json({ success: true, saved: saved });
+    Advertisement.list(filtro).then(function(advertisements) {
+        res.json({success: true, advertisements: advertisements});
+    }).catch(function(err) {
+        res.json({success: false, error: err});
     });
 });
+
+
 
 module.exports = router;
