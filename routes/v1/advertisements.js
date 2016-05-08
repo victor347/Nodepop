@@ -13,13 +13,12 @@ var Advertisement = mongoose.model('Advertisement');
 var jwtAuth = require('jwtAuth');
 router.use(jwtAuth());
 
-router.get('/tags', function (req, res) {
+router.get('/tags', (req, res)=> {
     var tags = Advertisement.schema.path('tags').options.enum;
         res.json({success: true, tags: tags});
 });
 
-router.get('/search', function (req, res) {
-
+router.get('/search', (req, res)=> {
     var name = req.query.name;
     var sale = req.query.sale;
     var tag = req.query.tag;
@@ -50,22 +49,22 @@ router.get('/search', function (req, res) {
         }
     }
 
-    Advertisement.search(name, sale, tag, eq, lt, gt, start, limit, sort).then(function (advertisements) {
+    Advertisement.search(name, sale, tag, eq, lt, gt, start, limit, sort).then((advertisements)=> {
         res.json({success: true, advertisements: advertisements});
-    }).catch(function (err) {
-        next(err);
+    }).catch((err)=> {
+        return next(err);
     });
 });
 
-router.get('/(:advertisement)?', function (req, res) {
+router.get('/(:advertisement)?', (req, res)=> {
     if (typeof req.params.advertisement !== 'undefined') {
         var filtro = {};
         filtro.name = req.params.advertisement;
     }
-    Advertisement.list(filtro).then(function (advertisements) {
+    Advertisement.list(filtro).then((advertisements)=> {
         res.json({success: true, advertisements: advertisements});
-    }).catch(function (err) {
-        next(err);
+    }).catch((err)=> {
+        return next(err);
     });
 });
 
