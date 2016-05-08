@@ -32,7 +32,7 @@ var advertisementSchema = mongoose.Schema({
 });
 
 advertisementSchema.statics.list = function(filter) {
-    return new Promise((resolve, reject)=> {
+    return new Promise((resolve, reject)=> {        
         Advertisement.find(filter).
         exec((err, advertisements)=>{
             if (err) {                
@@ -43,7 +43,7 @@ advertisementSchema.statics.list = function(filter) {
     });
 };
 
-advertisementSchema.statics.search = function(name, sale, tags, eq, lt, gt) {
+advertisementSchema.statics.search = function(name, sale, tags, eq, lt, gt, start, limit, sort) {
     console.log("search");
     return new Promise((resolve, reject)=> {
 
@@ -54,14 +54,14 @@ advertisementSchema.statics.search = function(name, sale, tags, eq, lt, gt) {
         }
         else{
             console.log("findOne");
-            var query = Advertisement.findOne({name: new RegExp('^'+name, "i")});
+            var query = Advertisement.find({name: new RegExp('^'+name, "i")});
         }
         if(typeof sale !== "undefined"){
             console.log("sale");
             query.where("sale").equals(sale);
         }
         if(typeof tags !== "undefined") {
-            console.log("tags");
+            console.log("tags ", tags);
             query.where('tags').in(tags);
         }
         if(typeof eq !== "undefined") {
@@ -80,6 +80,10 @@ advertisementSchema.statics.search = function(name, sale, tags, eq, lt, gt) {
             console.log("gt");
             query.where('price').gt(gt);
         }
+
+        query.skip(start);
+        query.limit(limit);
+        query.sort(sort);
        
         query.exec((err, advertisements)=>{
             if (err) {

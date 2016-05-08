@@ -7,7 +7,7 @@ Windows no soporta asignar las variables de entorno en la misma instrucción que
 Antes de iniciarla aplicación se debe agregar a las variables de entorno del sistema las siguientes.
 
 NODE_PATH=lib
-DEBUG=Nodepop.*
+DEBUG=Nodepop:*
 
 Linux-Mac-----------------------------------------------------------------------------
 Antes de iniciar la aplicación se debe realizar la siguiente configuración.

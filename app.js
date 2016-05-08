@@ -31,6 +31,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // rutas del API
 app.use('/api/v1/advertisements', require('./routes/v1/advertisements'));
+app.use('/api/v1/users', require('./routes/v1/users'));
 //app.use('/', routes);
 //app.use('/users', users);
 
@@ -49,6 +50,7 @@ if (app.get('env') === 'development') {
   app.use(function(err, req, res, next) {
     res.status(err.status || 500);
     res.json({
+      succes: false,
       message: err.message,
       error: err
     });
@@ -60,6 +62,7 @@ if (app.get('env') === 'development') {
 app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.json({
+    succes: false,
     message: err.message,
     error: {}
   });

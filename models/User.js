@@ -22,14 +22,23 @@ var userSchema = mongoose.Schema({
         type: String,
         required: true
     },
-    pushToken:{
-        token: String,
-        platform: {
-            type: String,
-            enum: ['ios', 'android']
-        }
+    salt: {
+        type: String,
+        required: true
     }
 });
+
+userSchema.statics.list = function(email) {
+    return new Promise((resolve, reject)=> {
+        User.findOne(email).
+        exec((err, advertisements)=>{
+            if (err) {
+                return reject(err);
+            }
+            return resolve(advertisements);
+        });
+    });
+};
 
 // lo asignamos al modelo
 var User = mongoose.model('User', userSchema);
