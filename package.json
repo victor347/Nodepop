@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "start": "nodemon ./bin/www",
+    "start-mac":"DEBUG=Nodepop.* NODE_PATH=lib nodemon ./bin/www",
     "mongo-win": "md mongo-db & \"C:/Program Files/MongoDb/Server/3.2/bin/mongod.exe\" --dbpath mongo-db --directoryperdb",
     "mongo-mac": "mkdir mongo-db; mongod --dbpath mongo-db",
     "initDB": "cls & \"C:/Program Files/MongoDb/Server/3.2/bin/mongo.exe\" NodepopDB ./database/initDB.js"
