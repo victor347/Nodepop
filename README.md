@@ -4,6 +4,7 @@
   API de venta de articulos de segunda mano.
 
 - Registro de usuarios
+- Almacenado de password con crypto.pbkdf2
 - Registro de pushTokens
 - Consulta de anuncios con filtros
 - Autenticación JWT
@@ -79,7 +80,233 @@ Para iniciar el servidor Nodepop se debe ejecutar le siguiente comando:
 ## Uso de Nodepop
 -------
 
-## Lenguajes
+### Lenguajes
 Los mensajes de erorr del API estan internacionalizados soportando ingles y español.
 
 Se debe enviar el parametro **"lang=es"** o **"lang=en"** en la query string para definir el lenguaje en el que se responderan los mensajes de error. El lenguaje por defecto es ingles.
+
+`https://host:443/api/v1/users/authenticate?lang=en`
+```js
+{
+  "succes": false,
+  "message": "Authentication failed. Invalid Email/Password combination.",
+  "error": {
+    "status": 401
+  }
+}
+```
+`https://host:443/api/v1/users/authenticate?lang=es`
+```js
+{
+  "succes": false,
+  "message": "Autenticación Fallida. Combinación invalida de Email/Password.",
+  "error": {
+    "status": 401
+  }
+}
+```
+
+### API - Usuarios
+-------
+#### Registrar usuarios
+
+Para registrar un usuario se deben pasar los siguientes datos del modelo en el body de una petición POST a la siguiente URL:
+
+`https://host:443/api/v1/users`
+
+Modelo de usuario:
+
+```js
+{
+    name: {
+        type: String,
+        required: true,
+    },
+    email: {  // Debe ser una dirección de email valida.
+        type: String,
+        required: true,
+        unique : true // Un email se puede registrar una sola vez.
+    },
+    pass: {
+        type: String,
+        required: true
+    }
+}
+```
+
+Si los datos son correctos se obtendra un mensaje de respuesta exitoso como el siguiente:
+
+```js
+{
+  "success": true,
+  "user": {
+    "name": "Victor Ortegon",
+    "email": "victor@nodepop.com"
+  }
+}
+```
+
+En caso de que los datos no sean correctos se obtendra un http 422 con un mensaje como el siguiente:
+
+```js
+{
+  "succes": false,
+  "message": "Datos de usuario incorrectos.",
+  "error": {
+    "status": 422
+  }
+}
+```
+
+#### Autenticar usuario
+
+Para autenticar un usuario se deben pasar los campos `email` and `pass` en el body de una petición POST a la siguiente URL::
+
+`https://host:443/api/v1/users/authenticate`
+
+Si la autenticación fue exitosa se obtendra un mensaje exitoso con el token:
+
+```js
+{
+  "success": true,
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjU3MmY4Y2I0N2E5NzRkODQwO"
+}
+```
+
+Si la autenticación no fue exitosa se obtendra un mensaje con el error:
+
+```js
+{
+  "succes": false,
+  "message": "Autenticación Fallida. Combinación invalida de Email/Password.",
+  "error": {
+    "status": 401
+  }
+}
+```
+
+### API - Anuncios
+-------
+`GET https://host:443/api/v1/advertisements` Obtiene una lista de todos los anuncios.
+
+`GET https://host:443/api/v1/advertisements/nombreAnuncio` Obtiene un anuncio especifico.
+
+`GET https://host:443/api/v1/advertisements/tags` Obtiene una lista de los tags existentes.
+
+Se debe enviar el Token obtenido de la autenticación en el Header.
+```js
+x-access-token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjU3Mm
+```
+
+### Filtrar anuncios
+Para filtar la lista de anuncios se debe enviar en la query string cada uno de los campos por los cuales se desea realizar el filtro.
+
+Todos los filtros se pueden combinar para realizar busquedas especificas.
+
+`GET https://host:443/api/v1/advertisements/search?tag=mobile&sale=true&price=10-50&name=bic&limit=15&sort=price&start=2`
+
+**1- Tags:** Se mostraran los anuncios que contengan por lo menos unos de los tags especificados.
+
+`https://host:443/api/v1/advertisements/search?tag=mobile&tag=lifestyle`
+
+
+**2- Tipo de anuncio:**
+
+`https://host:443/api/v1/advertisements/search?sale=true` Anuncios de venta
+
+`https://127.0.0.1:443/api/v1/advertisements/search?sale=false` Anuncio de compra
+
+**3- Rango de precio:**
+
+Buscar anuncios con precio entre 10 y 50.
+
+`https://host:443/api/v1/advertisements/search?price=10-50`
+
+Buscar anuncios que tengan precio mayor que 10.
+
+`https://host:443/api/v1/advertisements/search?price=10-`
+
+Buscar anuncios que tengan precio menor de 50.
+
+`https://host:443/api/v1/advertisements/search?price=-50`
+
+Buscar los anuncios que tengan precio igual a 80.
+
+`https://127.0.0.1:443/api/v1/advertisements/search?price=80`
+
+**4- Nombre del anuncio:**
+
+Buscar anuncios los cuales el nombre empiece por el dato buscado.
+
+`https://host:443/api/v1/advertisements/search?name=bic`
+
+### Limitar numero de resultados:
+
+Obtener maximo los 10 primeros anuncios.
+
+`https://host:443/api/v1/advertisements/search?limit=10`
+
+Descartar los dos primeros resultados.
+
+`https://host:443/api/v1/advertisements/search?start=2`
+
+### Ordenar anuncios
+
+Ordenar anuncios por nombre
+
+`https://host:443/api/v1/advertisements/search?sort=name`
+
+Ordenar anuncios por precio
+
+`https://host:443/api/v1/advertisements/search?sort=price`
+
+## API - PushToken
+-------
+Para registrar los pushToken de los dispositivos use el siguiente recurso:
+
+`POST http://host:443/api/v1/pushtokens`
+
+Modelo de pushToken:
+
+```js
+{
+    platform: {
+        type: String,
+        enum: ['ios', 'android'],
+        required: true
+    },
+    pushToken: {
+        type: String,
+        required: true,
+        unique : true //Un pushToken puede ser registrado solo una vez
+    },
+    user: { // Dirección de email valida del usuario
+        type: String
+    }
+}
+```
+
+Si el registro es exitoso obtendra una respuesta como la siguiente:
+
+```js
+{
+  "success": true,
+  "pushToken": {
+    "__v": 0,
+    "platform": "ios",
+    "pushToken": "yJhbGciOJIUzI1NiIsInR5cCI6IkpXJ9.eyJpZCI6IjU3MmY4Y2I0N2E5NzRkODQ",
+    "user": "victor@nodepop.com",
+    "_id": "572ff3558db12e3839d1606c"
+  }
+}
+```
+
+Si el registro no es exitoso la respuesta sera como la siguiente:
+
+```js
+{
+  "succes": false,
+  "message": "Datos de pushToken incorrectos.",
+  "status": 422
+}
+```

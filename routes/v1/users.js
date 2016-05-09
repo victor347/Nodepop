@@ -69,9 +69,13 @@ router.post('/', (req, res, next)=> {
             }
             user.pass = hash.toString("hex");
             user.save().then((saved)=> {
-                res.status(201).json({success: true, user: saved});
+                saved = saved.toObject(); // swap for a plain javascript object instance
+                delete saved["salt"];
+                delete saved["__v"];
+                delete saved["pass"];
+                delete saved["_id"];
+                 res.status(201).json({success: true, user: saved});
             }).catch((err)=> {
-
                 if (err.code) {
                     err.message = req.i18n.__(err.code.toString());
                 } else {
