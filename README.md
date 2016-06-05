@@ -10,6 +10,28 @@
 - Autenticación JWT
 - Mensajes de error internacionalizados con i18n-2
 
+## AWS - DevOps
+-------
+Para utilizar el API usar cualquiera de los [ usuarios](#inicializar-base-de-datos) precargados en la BD.
+
+El host y puerto donde esta desplegado el API es el siguiente:
+
+- http://ec2-52-207-239-55.compute-1.amazonaws.com:80
+
+Primero debe [ autenticarse](#autenticar-usuario) antes de poder realizar consultas.
+
+Una vez autenticado podrá realizar [ consultas](#consultar-anuncios) de los anuncios.
+
+Imagenes :
+
+- http://ec2-52-207-239-55.compute-1.amazonaws.com/images/bicicle.jpg
+
+- http://ec2-52-207-239-55.compute-1.amazonaws.com/images/playStation.jpg
+
+Bootstrap Page
+
+- http://52.207.239.55
+
 ## Instalación
 -------
 
@@ -47,7 +69,7 @@ Al ejecutar el comando se iniciara la base de datos Mongo en el puerto 27017 y g
 ```bash
 > npm run mongo-mac
 ```
-### Inicializar base de datos
+###Inicializar base de datos
 Al ejecutar el comando se agregan a las colecciones de anuncios y usuarios los datos que se encuentran en el archivo /database/initDB.js
 #### Windows
 ```bash
@@ -187,6 +209,8 @@ Si la autenticación no fue exitosa se obtendra un mensaje con el error:
 
 ### API - Anuncios
 -------
+
+### Consultar anuncios
 `GET https://host:443/api/v1/advertisements` Obtiene una lista de todos los anuncios.
 
 `GET https://host:443/api/v1/advertisements/nombreAnuncio` Obtiene un anuncio especifico.
